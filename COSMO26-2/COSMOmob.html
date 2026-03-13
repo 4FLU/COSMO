@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>COSMO | Gaming Store</title>
+
+<style>
+:root{
+  --glass: rgba(255,255,255,0.12);
+  --border: rgba(255,255,255,0.25);
+  --blur: blur(14px);
+}
+
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display",sans-serif;
+}
+
+body{
+  min-height:100vh;
+  background:radial-gradient(circle at top,#1d234a,#070814);
+  color:white;
+  overflow-x:hidden;
+}
+
+/* BACKGROUND ORBS (lighter for mobile) */
+.orb{
+  position:absolute;
+  width:260px;
+  height:260px;
+  border-radius:50%;
+  filter:blur(70px);
+  animation:float 12s ease-in-out infinite;
+}
+.orb.one{background:#6cf;top:-120px;left:-120px}
+.orb.two{background:#b06cff;bottom:-140px;right:-140px}
+
+@keyframes float{
+  0%,100%{transform:translateY(0)}
+  50%{transform:translateY(-40px)}
+}
+
+/* START SCREEN */
+#startScreen{
+  position:fixed;
+  inset:0;
+  background:black;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  z-index:100;
+}
+
+#startBtn{
+  padding:16px 42px;
+  font-size:16px;
+  letter-spacing:3px;
+  border:none;
+  border-radius:30px;
+  background:linear-gradient(135deg,#6cf,#b06cff);
+  font-weight:700;
+  cursor:pointer;
+}
+
+/* INTRO */
+#intro{
+  position:fixed;
+  inset:0;
+  background:black;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  z-index:99;
+  opacity:0;
+  visibility:hidden;
+}
+
+#intro.show{
+  opacity:1;
+  visibility:visible;
+}
+
+#intro h1{
+  font-size:42px;
+  letter-spacing:6px;
+  animation:logoPop 2s ease forwards;
+}
+
+@keyframes logoPop{
+  0%{opacity:0;transform:scale(.85)}
+  100%{opacity:1;transform:scale(1)}
+}
+
+/* NAVBAR */
+nav{
+  position:sticky;
+  top:0;
+  z-index:10;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:14px 20px;
+  background:var(--glass);
+  backdrop-filter:var(--blur);
+  border-bottom:1px solid var(--border);
+}
+
+nav h1{
+  font-size:18px;
+  letter-spacing:2px;
+}
+
+nav ul{
+  display:none; /* hide menu on mobile */
+}
+
+/* HERO */
+.hero{
+  padding:70px 20px 40px;
+  text-align:center;
+}
+
+.hero h2{
+  font-size:34px;
+  margin-bottom:12px;
+}
+
+.hero p{
+  font-size:15px;
+  opacity:.8;
+}
+
+/* CATEGORIES */
+.categories{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:22px;
+  padding:40px 20px;
+}
+
+.card{
+  background:var(--glass);
+  backdrop-filter:var(--blur);
+  border:1px solid var(--border);
+  border-radius:22px;
+  padding:24px;
+  box-shadow:0 18px 36px rgba(0,0,0,.45);
+}
+
+.card h3{
+  font-size:20px;
+  margin-bottom:8px;
+}
+
+.card p{
+  font-size:14px;
+  opacity:.8;
+  margin-bottom:16px;
+}
+
+.card button{
+  width:100%;
+  padding:12px;
+  border:none;
+  border-radius:16px;
+  background:linear-gradient(135deg,#6cf,#b06cff);
+  font-weight:700;
+}
+
+/* FOOTER */
+footer{
+  padding:24px;
+  text-align:center;
+  font-size:12px;
+  opacity:.6;
+}
+
+/* TABLET & UP */
+@media (min-width: 768px){
+  nav ul{
+    display:flex;
+    gap:24px;
+    list-style:none;
+  }
+
+  .hero h2{font-size:48px}
+  .categories{
+    grid-template-columns:repeat(2,1fr);
+  }
+}
+
+/* DESKTOP */
+@media (min-width: 1024px){
+  .categories{
+    grid-template-columns:repeat(4,1fr);
+  }
+}
+</style>
+</head>
+
+<body>
+
+<!-- START SCREEN -->
+<div id="startScreen">
+  <button id="startBtn">ENTER COSMO</button>
+</div>
+
+<!-- INTRO -->
+<div id="intro">
+  <h1>COSMO</h1>
+</div>
+
+<audio id="introSound" preload="auto">
+  <source src="INTROs.mp3" type="audio/mpeg">
+</audio>
+
+<div class="orb one"></div>
+<div class="orb two"></div>
+
+<nav>
+  <h1>COSMO</h1>
+  <ul>
+    <li>Home</li>
+    <li>Devices</li>
+    <li>Accessories</li>
+    <li>Supplements</li>
+    <li>Accounts</li>
+  </ul>
+</nav>
+
+<section class="hero">
+  <h2>Power Your Game</h2>
+  <p>Premium gear and next-gen gaming essentials.</p>
+</section>
+
+<section class="categories">
+  <div class="card">
+    <h3>🎮 Gaming Devices</h3>
+    <p>Keyboards, mice, controllers, hardware.</p>
+    <button>Shop Devices</button>
+  </div>
+
+  <div class="card">
+    <h3>🧠 Supplements</h3>
+    <p>Focus, energy, recovery support.</p>
+    <button>Explore</button>
+  </div>
+
+  <div class="card">
+    <h3>🕹 Accessories</h3>
+    <p>Headsets, RGB, streaming gear.</p>
+    <button>Browse</button>
+  </div>
+
+  <div class="card">
+    <h3>🚀 Accounts</h3>
+    <p>Verified game accounts & assets.</p>
+    <button>View</button>
+  </div>
+</section>
+
+<footer>
+  © 2026 COSMO Gaming
+</footer>
+
+<script>
+const startBtn = document.getElementById("startBtn");
+const startScreen = document.getElementById("startScreen");
+const intro = document.getElementById("intro");
+const sound = document.getElementById("introSound");
+
+startBtn.addEventListener("click", () => {
+  sound.currentTime = 0;
+  sound.play().catch(()=>{});
+
+  startScreen.style.display = "none";
+  intro.classList.add("show");
+
+  setTimeout(() => {
+    intro.style.opacity = "0";
+    setTimeout(() => intro.style.display = "none", 600);
+  }, 2200);
+});
+</script>
+
+</body>
+</html>

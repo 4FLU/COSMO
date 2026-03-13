@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>COSMO | Accessories</title>
+
+<style>
+:root{
+  --glass: rgba(255,255,255,0.12);
+  --border: rgba(255,255,255,0.25);
+  --blur: blur(18px);
+}
+*{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display",sans-serif}
+
+body{
+  min-height:100vh;
+  background:radial-gradient(circle at top,#1d234a,#070814);
+  color:white;
+}
+
+nav{
+  display:flex;
+  justify-content:space-between;
+  padding:20px 40px;
+  background:var(--glass);
+  backdrop-filter:var(--blur);
+  border-bottom:1px solid var(--border);
+}
+nav h1{letter-spacing:3px}
+nav ul{display:flex;gap:25px;list-style:none}
+
+.hero{
+  padding:80px 40px;
+  text-align:center;
+}
+.hero h2{font-size:46px}
+.hero p{opacity:.8}
+
+.grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+  gap:30px;
+  padding:40px;
+}
+
+.card{
+  background:var(--glass);
+  backdrop-filter:var(--blur);
+  border:1px solid var(--border);
+  border-radius:24px;
+  padding:30px;
+  transition:.25s;
+}
+.card:hover{transform:scale(1.04)}
+button{
+  margin-top:15px;
+  padding:12px 26px;
+  border:none;
+  border-radius:18px;
+  background:linear-gradient(135deg,#6cf,#b06cff);
+  font-weight:700;
+}
+</style>
+</head>
+
+<body>
+
+<nav>
+  <h1>COSMO</h1>
+  <ul>
+    <li><a href="index.html" style="color:white">Home</a></li>
+    <li><a href="COSMOdev.html" style="color:white">Devices</a></li>
+    <li>Accessories</li>
+    <li><a href="COSMOsup.html" style="color:white">Supplements</a></li>
+  </ul>
+</nav>
+
+<section class="hero">
+  <h2>Gaming Accessories</h2>
+  <p>Upgrade your setup. Dominate in style.</p>
+</section>
+
+<section class="grid">
+  <div class="card">
+    <h3>Headsets</h3>
+    <p>Surround sound with noise isolation.</p>
+    <button>Buy Now</button>
+  </div>
+
+  <div class="card">
+    <h3>Mousepads</h3>
+    <p>Speed & control surfaces for esports.</p>
+    <button>Buy Now</button>
+  </div>
+
+  <div class="card">
+    <h3>RGB Lights</h3>
+    <p>Ambient lighting for immersive gaming.</p>
+    <button>Buy Now</button>
+  </div>
+</section>
+
+</body>
+</html>
