@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login | COSMO Gaming</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif; }
+    :root {
+      --silver: #c9ced6;
+      --silver-bright: #eef1f5;
+      --silver-dim: #8b919c;
+      --glass: rgba(201, 206, 214, 0.07);
+      --glass-border: rgba(201, 206, 214, 0.22);
+    }
+    html { scroll-behavior: smooth; }
+    body {
+      background-color: #050507;
+      color: var(--silver);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+    #starCanvas {
+      position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    }
+    /* ---- Fade + slight blur reveal ---- */
+    .reveal {
+      opacity: 0;
+      filter: blur(10px);
+      transform: translateY(35px);
+      transition: opacity 1s cubic-bezier(.22,.61,.36,1), filter 1s cubic-bezier(.22,.61,.36,1), transform 1s cubic-bezier(.22,.61,.36,1);
+    }
+    .reveal.visible { opacity: 1; filter: blur(0); transform: translateY(0); }
+    /* ---- Header ---- */
+    header {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 1rem 3rem;
+      background: rgba(5, 5, 7, 0.55);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      position: sticky; top: 0; z-index: 1000;
+      border-bottom: 1px solid rgba(201,206,214,0.12);
+    }
+    .logo img { width: 150px; display: block; filter: grayscale(1) brightness(1.6); }
+    nav ul { list-style: none; display: flex; gap: 2rem; align-items: center; }
+    nav ul li a {
+      text-decoration: none; color: var(--silver); font-weight: 500; font-size: 0.95rem;
+      transition: color 0.35s ease, text-shadow 0.35s ease;
+    }
+    nav ul li a:hover { color: var(--silver-bright); text-shadow: 0 0 12px rgba(238,241,245,0.7); }
+    /* ---- Glassmorphism buttons ---- */
+    .glass-btn {
+      display: inline-block;
+      padding: 0.75rem 1.9rem;
+      border-radius: 50px;
+      background: var(--glass);
+      border: 1px solid var(--glass-border);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      color: var(--silver-bright);
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      text-decoration: none;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.4s cubic-bezier(.22,.61,.36,1), box-shadow 0.4s ease, background 0.4s ease, border-color 0.4s ease;
+    }
+    .glass-btn::before {
+      content: "";
+      position: absolute; top: 0; left: -80%;
+      width: 60%; height: 100%;
+      background: linear-gradient(105deg, transparent, rgba(255,255,255,0.35), transparent);
+      transform: skewX(-20deg);
+      transition: left 0.6s ease;
+    }
+    .glass-btn:hover {
+      transform: translateY(-3px) scale(1.04);
+      background: rgba(201,206,214,0.14);
+      border-color: rgba(238,241,245,0.5);
+      box-shadow: 0 8px 30px rgba(201,206,214,0.18), inset 0 0 20px rgba(238,241,245,0.06);
+    }
+    .glass-btn:hover::before { left: 120%; }
+    .glass-btn:active { transform: translateY(-1px) scale(1.01); }
+    .hero {
+      text-align: center;
+      padding: 8rem 2rem 6rem;
+      position: relative; z-index: 1;
+      background: radial-gradient(ellipse 80% 60% at 50% 120%, rgba(201,206,214,0.10), transparent 70%);
+    }
+    .hero h1 {
+      font-size: 3.2rem;
+      margin-bottom: 1rem;
+      color: var(--silver-bright);
+      letter-spacing: 0.12em;
+      text-shadow: 0 0 30px rgba(238,241,245,0.35);
+      animation: heroFade 1.6s cubic-bezier(.22,.61,.36,1) both;
+    }
+    .hero p {
+      font-size: 1.15rem; color: var(--silver-dim);
+      max-width: 560px; margin: 0 auto 2.5rem;
+      animation: heroFade 1.6s 0.25s cubic-bezier(.22,.61,.36,1) both;
+    }
+    @keyframes heroFade {
+      from { opacity: 0; filter: blur(12px); transform: translateY(30px); }
+      to   { opacity: 1; filter: blur(0);    transform: translateY(0); }
+    }
+    .horizon {
+      width: 70%; height: 2px; margin: 0 auto 3rem;
+      background: linear-gradient(90deg, transparent, var(--silver-bright), transparent);
+      box-shadow: 0 0 25px rgba(238,241,245,0.6);
+      animation: heroFade 1.6s 0.4s cubic-bezier(.22,.61,.36,1) both;
+    }
+    /* ---- Sections ---- */
+    section { position: relative; z-index: 1; }
+    .section-title {
+      text-align: center;
+      font-size: 2.2rem;
+      color: var(--silver-bright);
+      letter-spacing: 0.15em;
+      margin-bottom: 0.5rem;
+      text-shadow: 0 0 20px rgba(238,241,245,0.3);
+    }
+    .section-sub {
+      text-align: center; color: var(--silver-dim);
+      max-width: 620px; margin: 0 auto 3rem; padding: 0 1.5rem;
+    }
+    /* ---- Glass cards ---- */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 2rem;
+      padding: 2rem 3rem 5rem;
+      max-width: 1200px; margin: 0 auto;
+    }
+    .card {
+      background: var(--glass);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--glass-border);
+      border-radius: 20px;
+      padding: 2.2rem 1.8rem;
+      text-align: center;
+      transition: transform 0.5s cubic-bezier(.22,.61,.36,1), box-shadow 0.5s ease, border-color 0.5s ease;
+      cursor: pointer;
+    }
+    .card:hover {
+      transform: translateY(-12px);
+      border-color: rgba(238,241,245,0.5);
+      box-shadow: 0 20px 50px rgba(0,0,0,0.5), 0 0 35px rgba(201,206,214,0.15);
+    }
+    .card h2 { margin-bottom: 1rem; color: var(--silver-bright); letter-spacing: 0.08em; }
+    .card p { color: var(--silver-dim); font-size: 0.97rem; }
+    .card .glass-btn { margin-top: 1.5rem; font-size: 0.85rem; padding: 0.6rem 1.6rem; }
+    a.card-link { text-decoration: none; color: inherit; display: block; }
+    /* ---- Product cards ---- */
+    .product-card {
+      background: var(--glass);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--glass-border);
+      border-radius: 20px;
+      padding: 2rem 1.5rem;
+      text-align: center;
+      transition: transform 0.5s cubic-bezier(.22,.61,.36,1), box-shadow 0.5s ease, border-color 0.5s ease;
+    }
+    .product-card:hover {
+      transform: translateY(-12px);
+      border-color: rgba(238,241,245,0.5);
+      box-shadow: 0 20px 50px rgba(0,0,0,0.5), 0 0 35px rgba(201,206,214,0.15);
+    }
+    .product-card img {
+      width: 170px; height: 170px; object-fit: contain;
+      margin-bottom: 1.2rem; border-radius: 14px;
+      filter: grayscale(0.4) contrast(1.05);
+      transition: transform 0.5s ease, filter 0.5s ease;
+      background: rgba(0,0,0,0.35);
+    }
+    .product-card:hover img { transform: scale(1.07); filter: grayscale(0) contrast(1.1); }
+    .product-card h3 { color: var(--silver-bright); margin-bottom: 0.6rem; font-size: 1.25rem; letter-spacing: 0.05em; }
+    .product-card p { color: var(--silver-dim); font-size: 0.93rem; margin-bottom: 1.2rem; }
+    /* ---- About ---- */
+    .about-wrap {
+      max-width: 1100px; margin: 0 auto;
+      padding: 0 2rem 4rem;
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 2rem;
+    }
+    .about-card {
+      background: var(--glass);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--glass-border);
+      border-radius: 18px;
+      padding: 2rem;
+      transition: transform 0.5s cubic-bezier(.22,.61,.36,1), box-shadow 0.5s ease;
+    }
+    .about-card:hover { transform: translateY(-8px); box-shadow: 0 15px 40px rgba(0,0,0,0.5); }
+    .about-card h3 { color: var(--silver-bright); margin-bottom: 0.8rem; letter-spacing: 0.06em; }
+    .about-card p { color: var(--silver-dim); font-size: 0.95rem; }
+    .about-card .icon { font-size: 1.8rem; margin-bottom: 0.8rem; display: block; }
+    /* ---- Contact ---- */
+    .contact-wrap { max-width: 640px; margin: 0 auto; padding: 0 2rem 5rem; }
+    .contact-form { display: flex; flex-direction: column; gap: 1rem; }
+    .contact-form input, .contact-form textarea {
+      width: 100%; padding: 0.9rem 1.2rem;
+      border-radius: 14px;
+      border: 1px solid var(--glass-border);
+      background: var(--glass);
+      backdrop-filter: blur(10px);
+      color: var(--silver-bright);
+      font-size: 1rem; outline: none;
+      transition: border-color 0.35s ease, box-shadow 0.35s ease;
+      font-family: inherit; resize: vertical;
+    }
+    .contact-form input::placeholder, .contact-form textarea::placeholder { color: var(--silver-dim); }
+    .contact-form input:focus, .contact-form textarea:focus {
+      border-color: rgba(238,241,245,0.6);
+      box-shadow: 0 0 18px rgba(201,206,214,0.15);
+    }
+    footer {
+      text-align: center; padding: 2.2rem 1rem;
+      background: rgba(5,5,7,0.7);
+      backdrop-filter: blur(12px);
+      border-top: 1px solid rgba(201,206,214,0.1);
+      font-size: 0.9rem; color: var(--silver-dim);
+      position: relative; z-index: 1;
+    }
+    .page-head {
+      text-align: center; padding: 5rem 1.5rem 2rem; position: relative; z-index: 1;
+      background: radial-gradient(ellipse 70% 80% at 50% -20%, rgba(201,206,214,0.12), transparent 70%);
+    }
+    .page-head h1 {
+      font-size: 2.8rem; color: var(--silver-bright); letter-spacing: 0.2em;
+      text-shadow: 0 0 25px rgba(238,241,245,0.35);
+      animation: heroFade 1.4s cubic-bezier(.22,.61,.36,1) both;
+    }
+    .page-head p { color: var(--silver-dim); margin-top: 0.6rem; animation: heroFade 1.4s 0.2s both; }
+    @media (max-width: 640px) {
+      header { padding: 1rem 1.2rem; flex-direction: column; gap: 0.8rem; }
+      nav ul { flex-wrap: wrap; justify-content: center; gap: 1rem; }
+      .hero h1 { font-size: 2.1rem; }
+      .grid { padding: 1rem 1.2rem 4rem; }
+    }
+
+    .auth-stage {
+      min-height: 100vh; display: flex; justify-content: center; align-items: center;
+      padding: 3rem 1rem; position: relative; z-index: 1;
+    }
+    .auth-glow {
+      position: absolute; width: 700px; height: 700px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(201,206,214,0.14), transparent 65%);
+      filter: blur(30px); pointer-events: none;
+      animation: pulseGlow 6s ease-in-out infinite;
+    }
+    @keyframes pulseGlow { 0%,100% { transform: scale(1); opacity:0.8; } 50% { transform: scale(1.12); opacity:1; } }
+    .auth-box {
+      position: relative;
+      width: 420px; max-width: 100%;
+      background: rgba(10,10,14,0.55);
+      backdrop-filter: blur(22px);
+      -webkit-backdrop-filter: blur(22px);
+      border: 1px solid var(--glass-border);
+      border-radius: 26px;
+      padding: 2.6rem 2.4rem;
+      box-shadow: 0 30px 80px rgba(0,0,0,0.65), inset 0 1px 0 rgba(255,255,255,0.08);
+      animation: boxIn 1.2s cubic-bezier(.22,.61,.36,1) both;
+    }
+    @keyframes boxIn { from { opacity:0; filter: blur(14px); transform: translateY(40px); } to { opacity:1; filter: blur(0); transform: translateY(0); } }
+    .auth-logo { text-align: center; margin-bottom: 1.8rem; }
+    .auth-logo img { width: 130px; filter: grayscale(1) brightness(1.7); }
+    .tabs {
+      position: relative; display: flex;
+      background: rgba(201,206,214,0.06);
+      border: 1px solid var(--glass-border);
+      border-radius: 50px; padding: 5px; margin-bottom: 1.8rem;
+    }
+    .tab-btn {
+      flex: 1; position: relative; z-index: 2;
+      background: none; border: none; cursor: pointer;
+      padding: 0.65rem 0; border-radius: 50px;
+      color: var(--silver-dim); font-weight: 600; font-size: 0.95rem; letter-spacing: 0.04em;
+      transition: color 0.4s ease;
+    }
+    .tab-btn.active { color: #050507; }
+    .tab-slider {
+      position: absolute; top: 5px; left: 5px; width: calc(50% - 5px); height: calc(100% - 10px);
+      border-radius: 50px;
+      background: linear-gradient(135deg, var(--silver-bright), var(--silver));
+      box-shadow: 0 4px 18px rgba(238,241,245,0.35);
+      transition: transform 0.45s cubic-bezier(.22,.61,.36,1);
+      z-index: 1;
+    }
+    .tab-slider.right { transform: translateX(100%); }
+    .auth-form { display: flex; flex-direction: column; }
+    .auth-form.hidden { display: none; }
+    .field { position: relative; margin-bottom: 1.1rem; }
+    .field input {
+      width: 100%; padding: 1rem 1.1rem;
+      background: rgba(201,206,214,0.05);
+      border: 1px solid var(--glass-border);
+      border-radius: 14px;
+      color: var(--silver-bright); font-size: 0.98rem; outline: none;
+      transition: border-color 0.35s ease, box-shadow 0.35s ease, background 0.35s ease;
+    }
+    .field input:focus {
+      border-color: rgba(238,241,245,0.65);
+      box-shadow: 0 0 18px rgba(201,206,214,0.15);
+      background: rgba(201,206,214,0.09);
+    }
+    .field label {
+      position: absolute; left: 1.1rem; top: 1rem;
+      color: var(--silver-dim); font-size: 0.95rem; pointer-events: none;
+      transition: all 0.3s cubic-bezier(.22,.61,.36,1);
+      background: transparent; padding: 0 4px;
+    }
+    .field input:focus + label, .field input:not(:placeholder-shown) + label {
+      top: -0.55rem; left: 0.9rem; font-size: 0.75rem; color: var(--silver-bright);
+      background: rgba(10,10,14,0.9); border-radius: 6px;
+    }
+    .eye { position: absolute; right: 1rem; top: 1rem; cursor: pointer; opacity: 0.55; transition: opacity 0.3s; font-size: 0.95rem; }
+    .eye:hover { opacity: 1; }
+    .row-between { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.3rem; font-size: 0.85rem; }
+    .check { display: flex; align-items: center; gap: 0.45rem; color: var(--silver-dim); cursor: pointer; }
+    .check input { accent-color: var(--silver-bright); }
+    .mini-link { color: var(--silver-dim); text-decoration: none; transition: color 0.3s; }
+    .mini-link:hover { color: var(--silver-bright); }
+    .auth-submit { width: 100%; padding: 0.95rem; font-size: 1rem; border-radius: 50px; }
+    .switch-line { text-align: center; margin-top: 1.2rem; font-size: 0.87rem; color: var(--silver-dim); }
+    .switch-line a { color: var(--silver-bright); text-decoration: none; border-bottom: 1px dotted var(--silver-dim); }
+    .strength { height: 4px; border-radius: 4px; background: rgba(201,206,214,0.12); overflow: hidden; margin-top: -0.4rem; margin-bottom: 0.3rem; }
+    .strength span { display: block; height: 100%; width: 0; border-radius: 4px; transition: width 0.4s ease, background 0.4s ease; }
+    .strength-label { font-size: 0.78rem; color: var(--silver-dim); margin-bottom: 0.9rem; min-height: 1em; }
+    .back-link { display: block; text-align: center; margin-top: 1.6rem; color: var(--silver-dim); text-decoration: none; font-size: 0.85rem; transition: color 0.3s, letter-spacing 0.3s; }
+    .back-link:hover { color: var(--silver-bright); letter-spacing: 0.08em; }
+</style>
+</head>
+<body>
+  <canvas id="starCanvas"></canvas>
+
+  <div class="auth-stage">
+    <div class="auth-glow"></div>
+    <div class="auth-box reveal visible">
+      <div class="auth-logo"><img src="CL.png" alt="COSMO"></div>
+
+      <div class="tabs">
+        <button class="tab-btn active" id="tabLogin" onclick="switchTab('login')">Log In</button>
+        <button class="tab-btn" id="tabSignup" onclick="switchTab('signup')">Sign Up</button>
+        <span class="tab-slider" id="tabSlider"></span>
+      </div>
+
+      <!-- LOGIN FORM -->
+      <form id="formLogin" class="auth-form" action="COSMO.html" method="GET">
+        <div class="field">
+          <input type="text" id="loginUser" placeholder=" " required>
+          <label for="loginUser">Username or Email</label>
+        </div>
+        <div class="field">
+          <input type="password" id="loginPass" placeholder=" " required>
+          <label for="loginPass">Password</label>
+          <span class="eye" onclick="togglePass('loginPass', this)">&#128065;</span>
+        </div>
+        <div class="row-between">
+          <label class="check"><input type="checkbox"> Remember me</label>
+          <a href="#" class="mini-link">Forgot password?</a>
+        </div>
+        <button type="submit" class="glass-btn auth-submit" id="loginBtn">Enter the Horizon</button>
+        <p class="switch-line">New to COSMO? <a href="#" onclick="switchTab('signup'); return false;">Create an account</a></p>
+      </form>
+
+      <!-- SIGNUP FORM -->
+      <form id="formSignup" class="auth-form hidden" action="COSMO.html" method="GET">
+        <div class="field">
+          <input type="text" id="suName" placeholder=" " required>
+          <label for="suName">Gamer Tag / Username</label>
+        </div>
+        <div class="field">
+          <input type="email" id="suEmail" placeholder=" " required>
+          <label for="suEmail">Email Address</label>
+        </div>
+        <div class="field">
+          <input type="password" id="suPass" placeholder=" " required minlength="6">
+          <label for="suPass">Password (min. 6 characters)</label>
+          <span class="eye" onclick="togglePass('suPass', this)">&#128065;</span>
+        </div>
+        <div class="field">
+          <input type="password" id="suPass2" placeholder=" " required>
+          <label for="suPass2">Confirm Password</label>
+        </div>
+        <div class="strength"><span id="strengthBar"></span></div>
+        <p class="strength-label" id="strengthLabel"></p>
+        <label class="check" style="margin-bottom:1rem;"><input type="checkbox" required> I agree to the COSMO terms &amp; mission charter</label>
+        <button type="submit" class="glass-btn auth-submit" id="signupBtn">Join the Constellation</button>
+        <p class="switch-line">Already a member? <a href="#" onclick="switchTab('login'); return false;">Log in</a></p>
+      </form>
+
+      <a href="COSMO.html" class="back-link">&larr; Back to Base</a>
+    </div>
+  </div>
+
+  <script>
+/* ---- Cosmic rising stars (move up as you scroll down) ---- */
+const canvas = document.getElementById('starCanvas');
+const ctx = canvas.getContext('2d');
+let W, H, stars = [];
+const STAR_COUNT = 140;
+
+function initStars() {
+  W = canvas.width = window.innerWidth;
+  H = canvas.height = window.innerHeight;
+  stars = [];
+  for (let i = 0; i < STAR_COUNT; i++) {
+    stars.push({
+      x: Math.random() * W,
+      y: Math.random() * H,
+      r: Math.random() * 1.6 + 0.3,
+      speed: Math.random() * 0.9 + 0.15,
+      drift: Math.random() * 0.35 + 0.05,
+      alpha: Math.random() * 0.7 + 0.25,
+      tw: Math.random() * Math.PI * 2
+    });
+  }
+}
+initStars();
+window.addEventListener('resize', initStars);
+
+function drawStars() {
+  ctx.clearRect(0, 0, W, H);
+  const scrollY = window.scrollY || 0;
+  const t = performance.now() / 1000;
+  for (const s of stars) {
+    s.y -= s.drift + scrollY * 0.0025 * s.speed;
+    if (s.y < -5) { s.y = H + 5; s.x = Math.random() * W; }
+    const twinkle = 0.55 + 0.45 * Math.sin(t * 2 + s.tw);
+    ctx.globalAlpha = s.alpha * twinkle;
+    ctx.fillStyle = '#d8dde3';
+    ctx.beginPath();
+    ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  ctx.globalAlpha = 1;
+  requestAnimationFrame(drawStars);
+}
+drawStars();
+
+/* ---- Smooth fade + blur reveal on scroll ---- */
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach((e, i) => {
+    if (e.isIntersecting) {
+      setTimeout(() => e.target.classList.add('visible'), i * 90);
+      observer.unobserve(e.target);
+    }
+  });
+}, { threshold: 0.12 });
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+    function switchTab(which) {
+      const login = document.getElementById('formLogin');
+      const signup = document.getElementById('formSignup');
+      const slider = document.getElementById('tabSlider');
+      const tL = document.getElementById('tabLogin');
+      const tS = document.getElementById('tabSignup');
+      if (which === 'login') {
+        login.classList.remove('hidden'); signup.classList.add('hidden');
+        slider.classList.remove('right'); tL.classList.add('active'); tS.classList.remove('active');
+      } else {
+        signup.classList.remove('hidden'); login.classList.add('hidden');
+        slider.classList.add('right'); tS.classList.add('active'); tL.classList.remove('active');
+      }
+    }
+    function togglePass(id, el) {
+      const inp = document.getElementById(id);
+      inp.type = inp.type === 'password' ? 'text' : 'password';
+      el.style.opacity = inp.type === 'text' ? '1' : '0.55';
+    }
+    // Password strength meter
+    document.getElementById('suPass').addEventListener('input', function () {
+      const v = this.value;
+      const bar = document.getElementById('strengthBar');
+      const label = document.getElementById('strengthLabel');
+      let score = 0;
+      if (v.length >= 6) score++;
+      if (v.length >= 10) score++;
+      if (/[A-Z]/.test(v) && /[a-z]/.test(v)) score++;
+      if (/\d/.test(v) || /[^A-Za-z0-9]/.test(v)) score++;
+      const levels = [
+        ['0%', ''],
+        ['25%', 'Weak &mdash; add more characters'],
+        ['50%', 'Fair &mdash; getting there'],
+        ['75%', 'Strong &mdash; nice work'],
+        ['100%', 'Galactic-grade password']
+      ];
+      const shades = ['#8b919c', '#8b919c', '#c9ced6', '#eef1f5', '#ffffff'];
+      bar.style.width = levels[score][0];
+      bar.style.background = shades[score];
+      label.innerHTML = levels[score][1];
+    });
+    // Confirm password match
+    document.getElementById('formSignup').addEventListener('submit', function (e) {
+      const p1 = document.getElementById('suPass').value;
+      const p2 = document.getElementById('suPass2').value;
+      if (p1 !== p2) {
+        e.preventDefault();
+        const lbl = document.querySelector('label[for="suPass2"]');
+        lbl.textContent = 'Passwords do not match!';
+        lbl.style.color = '#ff8080';
+        setTimeout(() => { lbl.textContent = 'Confirm Password'; lbl.style.color = ''; }, 2500);
+      }
+    });
+</script>
+</body>
+</html>

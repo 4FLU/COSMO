@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>COSMO | Beyond the Horizon of Gaming</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif; }
+    :root {
+      --silver: #c9ced6;
+      --silver-bright: #eef1f5;
+      --silver-dim: #8b919c;
+      --glass: rgba(201, 206, 214, 0.07);
+      --glass-border: rgba(201, 206, 214, 0.22);
+    }
+    html { scroll-behavior: smooth; }
+    body {
+      background-color: #050507;
+      color: var(--silver);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+    #starCanvas {
+      position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    }
+    /* ---- Fade + slight blur reveal ---- */
+    .reveal {
+      opacity: 0;
+      filter: blur(10px);
+      transform: translateY(35px);
+      transition: opacity 1s cubic-bezier(.22,.61,.36,1), filter 1s cubic-bezier(.22,.61,.36,1), transform 1s cubic-bezier(.22,.61,.36,1);
+    }
+    .reveal.visible { opacity: 1; filter: blur(0); transform: translateY(0); }
+    /* ---- Header ---- */
+    header {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 1rem 3rem;
+      background: rgba(5, 5, 7, 0.55);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      position: sticky; top: 0; z-index: 1000;
+      border-bottom: 1px solid rgba(201,206,214,0.12);
+    }
+    .logo img { width: 150px; display: block; filter: grayscale(1) brightness(1.6); }
+    nav ul { list-style: none; display: flex; gap: 2rem; align-items: center; }
+    nav ul li a {
+      text-decoration: none; color: var(--silver); font-weight: 500; font-size: 0.95rem;
+      transition: color 0.35s ease, text-shadow 0.35s ease;
+    }
+    nav ul li a:hover { color: var(--silver-bright); text-shadow: 0 0 12px rgba(238,241,245,0.7); }
+    /* ---- Glassmorphism buttons ---- */
+    .glass-btn {
+      display: inline-block;
+      padding: 0.75rem 1.9rem;
+      border-radius: 50px;
+      background: var(--glass);
+      border: 1px solid var(--glass-border);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      color: var(--silver-bright);
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      text-decoration: none;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.4s cubic-bezier(.22,.61,.36,1), box-shadow 0.4s ease, background 0.4s ease, border-color 0.4s ease;
+    }
+    .glass-btn::before {
+      content: "";
+      position: absolute; top: 0; left: -80%;
+      width: 60%; height: 100%;
+      background: linear-gradient(105deg, transparent, rgba(255,255,255,0.35), transparent);
+      transform: skewX(-20deg);
+      transition: left 0.6s ease;
+    }
+    .glass-btn:hover {
+      transform: translateY(-3px) scale(1.04);
+      background: rgba(201,206,214,0.14);
+      border-color: rgba(238,241,245,0.5);
+      box-shadow: 0 8px 30px rgba(201,206,214,0.18), inset 0 0 20px rgba(238,241,245,0.06);
+    }
+    .glass-btn:hover::before { left: 120%; }
+    .glass-btn:active { transform: translateY(-1px) scale(1.01); }
+    .hero {
+      text-align: center;
+      padding: 8rem 2rem 6rem;
+      position: relative; z-index: 1;
+      background: radial-gradient(ellipse 80% 60% at 50% 120%, rgba(201,206,214,0.10), transparent 70%);
+    }
+    .hero h1 {
+      font-size: 3.2rem;
+      margin-bottom: 1rem;
+      color: var(--silver-bright);
+      letter-spacing: 0.12em;
+      text-shadow: 0 0 30px rgba(238,241,245,0.35);
+      animation: heroFade 1.6s cubic-bezier(.22,.61,.36,1) both;
+    }
+    .hero p {
+      font-size: 1.15rem; color: var(--silver-dim);
+      max-width: 560px; margin: 0 auto 2.5rem;
+      animation: heroFade 1.6s 0.25s cubic-bezier(.22,.61,.36,1) both;
+    }
+    @keyframes heroFade {
+      from { opacity: 0; filter: blur(12px); transform: translateY(30px); }
+      to   { opacity: 1; filter: blur(0);    transform: translateY(0); }
+    }
+    .horizon {
+      width: 70%; height: 2px; margin: 0 auto 3rem;
+      background: linear-gradient(90deg, transparent, var(--silver-bright), transparent);
+      box-shadow: 0 0 25px rgba(238,241,245,0.6);
+      animation: heroFade 1.6s 0.4s cubic-bezier(.22,.61,.36,1) both;
+    }
+    /* ---- Sections ---- */
+    section { position: relative; z-index: 1; }
+    .section-title {
+      text-align: center;
+      font-size: 2.2rem;
+      color: var(--silver-bright);
+      letter-spacing: 0.15em;
+      margin-bottom: 0.5rem;
+      text-shadow: 0 0 20px rgba(238,241,245,0.3);
+    }
+    .section-sub {
+      text-align: center; color: var(--silver-dim);
+      max-width: 620px; margin: 0 auto 3rem; padding: 0 1.5rem;
+    }
+    /* ---- Glass cards ---- */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 2rem;
+      padding: 2rem 3rem 5rem;
+      max-width: 1200px; margin: 0 auto;
+    }
+    .card {
+      background: var(--glass);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--glass-border);
+      border-radius: 20px;
+      padding: 2.2rem 1.8rem;
+      text-align: center;
+      transition: transform 0.5s cubic-bezier(.22,.61,.36,1), box-shadow 0.5s ease, border-color 0.5s ease;
+      cursor: pointer;
+    }
+    .card:hover {
+      transform: translateY(-12px);
+      border-color: rgba(238,241,245,0.5);
+      box-shadow: 0 20px 50px rgba(0,0,0,0.5), 0 0 35px rgba(201,206,214,0.15);
+    }
+    .card h2 { margin-bottom: 1rem; color: var(--silver-bright); letter-spacing: 0.08em; }
+    .card p { color: var(--silver-dim); font-size: 0.97rem; }
+    .card .glass-btn { margin-top: 1.5rem; font-size: 0.85rem; padding: 0.6rem 1.6rem; }
+    a.card-link { text-decoration: none; color: inherit; display: block; }
+    /* ---- Product cards ---- */
+    .product-card {
+      background: var(--glass);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--glass-border);
+      border-radius: 20px;
+      padding: 2rem 1.5rem;
+      text-align: center;
+      transition: transform 0.5s cubic-bezier(.22,.61,.36,1), box-shadow 0.5s ease, border-color 0.5s ease;
+    }
+    .product-card:hover {
+      transform: translateY(-12px);
+      border-color: rgba(238,241,245,0.5);
+      box-shadow: 0 20px 50px rgba(0,0,0,0.5), 0 0 35px rgba(201,206,214,0.15);
+    }
+    .product-card img {
+      width: 170px; height: 170px; object-fit: contain;
+      margin-bottom: 1.2rem; border-radius: 14px;
+      filter: grayscale(0.4) contrast(1.05);
+      transition: transform 0.5s ease, filter 0.5s ease;
+      background: rgba(0,0,0,0.35);
+    }
+    .product-card:hover img { transform: scale(1.07); filter: grayscale(0) contrast(1.1); }
+    .product-card h3 { color: var(--silver-bright); margin-bottom: 0.6rem; font-size: 1.25rem; letter-spacing: 0.05em; }
+    .product-card p { color: var(--silver-dim); font-size: 0.93rem; margin-bottom: 1.2rem; }
+    /* ---- About ---- */
+    .about-wrap {
+      max-width: 1100px; margin: 0 auto;
+      padding: 0 2rem 4rem;
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 2rem;
+    }
+    .about-card {
+      background: var(--glass);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--glass-border);
+      border-radius: 18px;
+      padding: 2rem;
+      transition: transform 0.5s cubic-bezier(.22,.61,.36,1), box-shadow 0.5s ease;
+    }
+    .about-card:hover { transform: translateY(-8px); box-shadow: 0 15px 40px rgba(0,0,0,0.5); }
+    .about-card h3 { color: var(--silver-bright); margin-bottom: 0.8rem; letter-spacing: 0.06em; }
+    .about-card p { color: var(--silver-dim); font-size: 0.95rem; }
+    .about-card .icon { font-size: 1.8rem; margin-bottom: 0.8rem; display: block; }
+    /* ---- Contact ---- */
+    .contact-wrap { max-width: 640px; margin: 0 auto; padding: 0 2rem 5rem; }
+    .contact-form { display: flex; flex-direction: column; gap: 1rem; }
+    .contact-form input, .contact-form textarea {
+      width: 100%; padding: 0.9rem 1.2rem;
+      border-radius: 14px;
+      border: 1px solid var(--glass-border);
+      background: var(--glass);
+      backdrop-filter: blur(10px);
+      color: var(--silver-bright);
+      font-size: 1rem; outline: none;
+      transition: border-color 0.35s ease, box-shadow 0.35s ease;
+      font-family: inherit; resize: vertical;
+    }
+    .contact-form input::placeholder, .contact-form textarea::placeholder { color: var(--silver-dim); }
+    .contact-form input:focus, .contact-form textarea:focus {
+      border-color: rgba(238,241,245,0.6);
+      box-shadow: 0 0 18px rgba(201,206,214,0.15);
+    }
+    footer {
+      text-align: center; padding: 2.2rem 1rem;
+      background: rgba(5,5,7,0.7);
+      backdrop-filter: blur(12px);
+      border-top: 1px solid rgba(201,206,214,0.1);
+      font-size: 0.9rem; color: var(--silver-dim);
+      position: relative; z-index: 1;
+    }
+    .page-head {
+      text-align: center; padding: 5rem 1.5rem 2rem; position: relative; z-index: 1;
+      background: radial-gradient(ellipse 70% 80% at 50% -20%, rgba(201,206,214,0.12), transparent 70%);
+    }
+    .page-head h1 {
+      font-size: 2.8rem; color: var(--silver-bright); letter-spacing: 0.2em;
+      text-shadow: 0 0 25px rgba(238,241,245,0.35);
+      animation: heroFade 1.4s cubic-bezier(.22,.61,.36,1) both;
+    }
+    .page-head p { color: var(--silver-dim); margin-top: 0.6rem; animation: heroFade 1.4s 0.2s both; }
+    @media (max-width: 640px) {
+      header { padding: 1rem 1.2rem; flex-direction: column; gap: 0.8rem; }
+      nav ul { flex-wrap: wrap; justify-content: center; gap: 1rem; }
+      .hero h1 { font-size: 2.1rem; }
+      .grid { padding: 1rem 1.2rem 4rem; }
+    }
+</style>
+</head>
+<body>
+  <canvas id="starCanvas"></canvas>
+  <header>
+    <div class="logo"><a href="COSMO.html"><img src="CL.png" alt="COSMO"></a></div>
+    <nav>
+      <ul>
+        <li><a href="COSMO.html#about">About us</a></li>
+        <li><a href="COSMO.html#contact">Contact us</a></li>
+        <li><a href="Login.html" class="glass-btn" style="padding: 0.5rem 1.4rem; font-size: 0.85rem;">Sign Up / Log In</a></li>
+      </ul>
+    </nav>
+  </header>
+  <section class="hero">
+    <h1>Level Up Your Gaming</h1>
+    <p>Premium supplements, accessories, and devices designed for pro gamers &mdash; forged at the cosmic horizon where skill meets style.</p>
+    <div class="horizon"></div>
+    <a href="#categories" class="glass-btn">Explore the Galaxy</a>
+  </section>
+
+  <section id="categories">
+    <h2 class="section-title reveal">Choose Your Orbit</h2>
+    <p class="section-sub reveal">Three galaxies of gear, nutrition, and hardware &mdash; every product engineered for players who refuse to settle.</p>
+    <div class="grid">
+      <a class="card-link reveal" href="COSMOsupp 2.1.html">
+        <div class="card">
+          <h2>Gaming Supplements</h2>
+          <p>Boost focus, energy, and performance with top-tier gaming nutrition crafted for marathon sessions.</p>
+          <span class="glass-btn">Enter Sector</span>
+        </div>
+      </a>
+      <a class="card-link reveal" href="COSMOacc 2.1.html">
+        <div class="card">
+          <h2>Accessories</h2>
+          <p>High-quality grips, protectors, and cleaning kits for serious players who keep their setup immaculate.</p>
+          <span class="glass-btn">Enter Sector</span>
+        </div>
+      </a>
+      <a class="card-link reveal" href="COSMOdev 2.1.html">
+        <div class="card">
+          <h2>Devices</h2>
+          <p>Cutting-edge VR headsets, consoles, laptops, and streaming gear to power your play into new dimensions.</p>
+          <span class="glass-btn">Enter Sector</span>
+        </div>
+      </a>
+    </div>
+  </section>
+
+  <section id="about">
+    <h2 class="section-title reveal">About Us</h2>
+    <p class="section-sub reveal">Born from late-night ranked grinds and championship dreams, COSMO exists for one reason: to give every gamer the edge they deserve.</p>
+    <div class="about-wrap">
+      <div class="about-card reveal">
+        <span class="icon">&#128640;</span>
+        <h3>Our Mission</h3>
+        <p>We bridge the gap between performance and passion. From focus-boosting supplements to precision-engineered hardware, every COSMO product is tested by real players in real matches &mdash; not just in labs.</p>
+      </div>
+      <div class="about-card reveal">
+        <span class="icon">&#127756;</span>
+        <h3>Why COSMO?</h3>
+        <p>The cosmic horizon is the edge of what's possible. We build gear that pushes you there: zero-compromise materials, galaxy-grade design, and performance tuning that respects the competitive grind.</p>
+      </div>
+      <div class="about-card reveal">
+        <span class="icon">&#128101;</span>
+        <h3>Our Community</h3>
+        <p>Over 50,000 players across the globe trust COSMO for their daily setup. Streamers, esports athletes, and casual legends alike &mdash; one constellation, one mission: play beyond limits.</p>
+      </div>
+      <div class="about-card reveal">
+        <span class="icon">&#128171;</span>
+        <h3>The Future</h3>
+        <p>We're constantly exploring new frontiers &mdash; next-gen VR immersion, smarter nutrition science, and hardware that adapts to your playstyle. The horizon keeps expanding, and so do we.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="contact">
+    <h2 class="section-title reveal">Contact Us</h2>
+    <p class="section-sub reveal">Questions about an order, a product, or joining the COSMO constellation? Transmit a message below &mdash; our crew responds within 24 hours.</p>
+    <div class="contact-wrap reveal">
+      <form class="contact-form" action="#" onsubmit="event.preventDefault(); this.querySelector('button').textContent='Message Transmitted &#10004;';">
+        <input type="text" placeholder="Your name" required>
+        <input type="email" placeholder="Your email" required>
+        <textarea rows="5" placeholder="Your message..." required></textarea>
+        <button type="submit" class="glass-btn" style="border-radius:50px; font-size:0.95rem;">Send Transmission</button>
+      </form>
+    </div>
+  </section>
+
+  <footer>
+    COSMO &mdash; Beyond the Horizon of Gaming. All rights reserved &copy; 2026
+  </footer>
+  <script>
+/* ---- Cosmic rising stars (move up as you scroll down) ---- */
+const canvas = document.getElementById('starCanvas');
+const ctx = canvas.getContext('2d');
+let W, H, stars = [];
+const STAR_COUNT = 140;
+
+function initStars() {
+  W = canvas.width = window.innerWidth;
+  H = canvas.height = window.innerHeight;
+  stars = [];
+  for (let i = 0; i < STAR_COUNT; i++) {
+    stars.push({
+      x: Math.random() * W,
+      y: Math.random() * H,
+      r: Math.random() * 1.6 + 0.3,
+      speed: Math.random() * 0.9 + 0.15,
+      drift: Math.random() * 0.35 + 0.05,
+      alpha: Math.random() * 0.7 + 0.25,
+      tw: Math.random() * Math.PI * 2
+    });
+  }
+}
+initStars();
+window.addEventListener('resize', initStars);
+
+function drawStars() {
+  ctx.clearRect(0, 0, W, H);
+  const scrollY = window.scrollY || 0;
+  const t = performance.now() / 1000;
+  for (const s of stars) {
+    s.y -= s.drift + scrollY * 0.0025 * s.speed;
+    if (s.y < -5) { s.y = H + 5; s.x = Math.random() * W; }
+    const twinkle = 0.55 + 0.45 * Math.sin(t * 2 + s.tw);
+    ctx.globalAlpha = s.alpha * twinkle;
+    ctx.fillStyle = '#d8dde3';
+    ctx.beginPath();
+    ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  ctx.globalAlpha = 1;
+  requestAnimationFrame(drawStars);
+}
+drawStars();
+
+/* ---- Smooth fade + blur reveal on scroll ---- */
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach((e, i) => {
+    if (e.isIntersecting) {
+      setTimeout(() => e.target.classList.add('visible'), i * 90);
+      observer.unobserve(e.target);
+    }
+  });
+}, { threshold: 0.12 });
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+</script>
+</body>
+</html>
